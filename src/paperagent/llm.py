@@ -106,7 +106,7 @@ def ask_ollama(system_prompt: str, user_prompt: str, model: str) -> str:
     )
 
     try:
-        with urllib.request.urlopen(request, timeout=600) as response:
+        with urllib.request.urlopen(request, timeout=1800) as response:
             result = json.loads(response.read().decode("utf-8"))
     except urllib.error.URLError as exc:
         raise RuntimeError(
