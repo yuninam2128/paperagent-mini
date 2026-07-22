@@ -176,14 +176,26 @@ class CriticAgent(BaseAgent):
     role = "skeptical senior researcher finding blind spots and weak claims"
 
     def critique(self, topic: str, literature_review: str) -> str:
-        return self.ask(
-            f"""
+        return _remove_unwanted_cjk(
+            self.ask(
+                f"""
 Research topic: {topic}
-Literature review: {literature_review}
+Literature review:
+{literature_review}
 
-리뷰를 비판적으로 검토하고 누락된 관점, 숨은 가정, 근거가 약한 주장,
-반대 시각과 구체적인 개선안을 한국어 markdown으로 작성하세요.
+위 literature review에서 근거가 약하거나 빠진 내용을 구체적으로 지적하세요.
+막연한 비판은 금지하고, 각 문제를 아래 세 줄 형식의 짧은 불릿으로 작성하세요.
+
+- 문제 위치: 리뷰의 어떤 주장이나 문장인지
+- 이유: 왜 근거가 약하거나 빠졌는지 (숨은 가정, 과장, 반대 사례 포함)
+- 수정 제안: 무엇을 보완하거나 확인하면 되는지
+
+작성 규칙:
+- 한글과 필요한 영문 기술 용어만 사용하고, 한자·중국어·일본어 문자와 번역 지시문은 쓰지 마세요.
+- 같은 지적을 반복하지 말고, 입력에 없는 내용을 지어내지 마세요.
+- 지적할 문제가 없는 항목은 왜 타당한지 한 줄로 근거를 남기고 비워두지 마세요.
 """
+            )
         )
 
 
@@ -208,16 +220,31 @@ Paper summaries:
 Reviewer feedback:
 {reviewer_feedback or "No reviewer feedback was generated."}
 
-위 자료를 바탕으로 한국어 literature review를 작성하세요.
+위 논문 요약들을 하나의 한국어 literature review로 종합하세요.
+여러 논문의 공통 흐름과 서로 다른 점이 한눈에 보이도록 정리하는 것이 목표입니다.
+
+작성 규칙:
+- 긴 줄글 대신 짧은 불릿으로 쓰고, 불릿 하나에는 한 가지 내용만 담으세요.
+- 주장을 적을 때는 근거가 되는 논문을 `(arXiv ID)`로 함께 표기하세요.
+- 논문마다 어떤 점이 같고 어떤 점이 다른지 반드시 대비해서 쓰세요.
+- 한글과 필요한 영문 기술 용어만 사용하고, 한자·중국어·일본어 문자와 번역 지시문은 쓰지 마세요.
+- 같은 문장이나 내용을 반복하지 말고, 입력에 없는 수치나 성과를 만들지 마세요.
+- 어떤 항목도 제목만 남기고 비워두지 마세요.
+
 반드시 포함할 항목:
-1. Overall research trend
-2. Paper comparison table
-3. Common methods
-4. Open problems
-5. Implementation hints for our mini paper agent
-6. Project ideas our team could build next
+## Overall research trend
+- 전체 연구 흐름을 2~4개 불릿으로 정리
+## Paper comparison
+| # | Paper (arXiv ID) | 접근 방식 | 차별점 / 한계 |
+|---|---|---|---|
+## Common methods
+- 여러 논문이 공유하는 방법이나 가정
+## Open problems
+- 아직 해결되지 않은 공통 문제
+## Implementation hints for our mini paper agent
+- 우리 mini paper agent 프로젝트에 적용할 점
 """
-        return self.ask(user_prompt)
+        return _remove_unwanted_cjk(self.ask(user_prompt))
 
 
 class ProfessorAgent(BaseAgent):
@@ -241,16 +268,24 @@ Implementable methods: {method_text or "Not generated."}
 Implementation plan: {implementation_plan or "Not generated."}
 Extra reviewer reports: {extra_reviews or "Not generated."}
 
-발표나 과제 제출에 쓸 수 있는 최종 보고서 초안을 한국어로 작성하세요.
+발표나 과제 제출에 쓸 수 있는 최종 보고서를 한국어로 작성하세요.
+읽는 사람이 빠르게 파악할 수 있도록 긴 줄글 대신 짧은 불릿 중심으로 쓰세요.
+
+작성 규칙:
+- 각 항목은 2~4개의 짧은 불릿으로 쓰고, 불릿 하나에는 한 가지 내용만 담으세요.
+- 한글과 필요한 영문 기술 용어만 사용하고, 한자·중국어·일본어 문자와 번역 지시문은 쓰지 마세요.
+- 같은 문장을 반복하지 말고, 입력에 없는 수치나 성과를 만들지 마세요.
+- 어떤 항목도 제목만 남기고 비워두지 마세요.
+
 포함할 항목:
-- Abstract
-- Background
-- Agent architecture
-- What we implemented
-- What remains
-- Next milestones
+## Abstract
+## Background
+## Agent architecture
+## What we implemented
+## What remains
+## Next milestones
 """
-        return self.ask(user_prompt)
+        return _remove_unwanted_cjk(self.ask(user_prompt))
 
 
 class MethodExtractionAgent(BaseAgent):
